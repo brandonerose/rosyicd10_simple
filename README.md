@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rosyicd10 <img src="man/figures/logo.png" align="right" height="200" />
+# rosyicd10 <img src="www/logo.png" align="right" height="200" />
 
 <!-- badges: start -->
 
