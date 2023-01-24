@@ -42,11 +42,7 @@ ICD10l4<-ICD10[which(ICD10$level=="diag4"),]
 ICD10l5<-ICD10[which(ICD10$level=="diag5"),]#add list in future?
 ui <- dashboardPage(
   dashboardHeader(
-    title=tags$head(tags$link(rel="icon", 
-                                  href="logo.png", 
-                                  type="png")
-    )
-      
+    title = "rosyicd10"
   ),
   dashboardSidebar(
     sidebarMenu(
@@ -55,8 +51,19 @@ ui <- dashboardPage(
         tags$a(
           href="https://thecodingdocs.com",
           target="_blank",
-          tags$img(src = "logo.png", width="80%")
+          tags$img(src = "www/logo.png", width="80%")
         )
+      ),
+      
+      fluidRow(
+        column(
+          12,
+          shiny::actionButton(
+            inputId='ab1',
+            label="Donate!",
+            icon = icon("dollar"),
+            onclick ="window.open('https://account.venmo.com/u/brandonerose', '_blank')"),
+          align="center")
       ),
       fluidRow(
         column(
@@ -102,9 +109,9 @@ ui <- dashboardPage(
           ),
           align="center")
       ),
-
-      div(style="text-align:center",p(paste0('Version: 1.0.0'))),
-      div(style="text-align:center",p(paste0('Last Updated: 1/23/23'))),
+      
+      div(style="text-align:center",p(paste0('Version: ',utils::packageVersion(.packageName)))),
+      div(style="text-align:center",p(paste0('Last Updated: ',Sys.Date()))),
       menuItem("All ICD-10s", tabName = "all_tab"),
       menuItem("Chapters", tabName = "chapter_tab"),
       menuItem("Sections", tabName = "section_tab"),
@@ -120,6 +127,16 @@ ui <- dashboardPage(
           uiOutput("remove_all1"),
           align="center")
       ),
+      fluidRow(
+        column(
+          12,
+          p("This app is still in development."),
+          p("Consider donating for more."),
+          p("Contact with issues."),
+          p("Consider using R package."),
+          align="center"
+        )
+      ),
       textOutput("text_check")
     )
   ),
@@ -134,6 +151,7 @@ ui <- dashboardPage(
           choices = unique(ICD10$level),
           selected = unique(ICD10$level)
         )),
+        h1("Select your codes here. Use filter as well!"),
         fluidRow(
           DT::DTOutput("all_table")
         ),
@@ -149,7 +167,7 @@ ui <- dashboardPage(
             uiOutput("downloadData_all"),
             align="center")
         ),
-
+        
         h2("Selected Codes"),
         fluidRow(DT::DTOutput("selected_table")),
         fluidRow(
@@ -164,9 +182,9 @@ ui <- dashboardPage(
             uiOutput("remove_all2"),
             align="center")
         ),
-
+        
         uiOutput("downloadData_selected")
-
+        
       ),
       tabItem(
         tabName = "chapter_tab",
@@ -203,7 +221,6 @@ ui <- dashboardPage(
 
 
 server <- function(input, output, session) {
-  # table<-reactive(ICD10[which(ICD10$level%in%input$level),])
   values<-reactiveValues()
   values$codes<-NULL
   # tables------
@@ -258,7 +275,7 @@ server <- function(input, output, session) {
     downloadButton('downloadData_selected_', paste0('Download Above Report (',formatC(length(values$codes), format="d", big.mark=","),")"), style="display: block; margin: 0 auto; width: 230px;color: black;")
   })
   #observes------
-
+  
   output$downloadData_all_ <- downloadHandler(
     filename = function() {
       gsub(" ","_",paste("rosyicd10_filter_", Sys.time(), ".csv", sep=""))
@@ -273,7 +290,7 @@ server <- function(input, output, session) {
     content = function(file) {
       write.csv(ICD10[which(ICD10$code%in%values$codes),], file,row.names = F)
     })
-
+  
   observe({
     input$remove_all1_
     input$remove_all2_
@@ -309,7 +326,7 @@ server <- function(input, output, session) {
   observeEvent(input$remove_,ignoreInit = T,{
     values$codes<-values$codes[which(!values$codes%in%ICD10$code[which(ICD10$code%in%values$codes)][input$selected_table_rows_selected])]
   })
-
+  
   #valuebox -------
   output$vb1<-shinydashboard::renderValueBox({
     shinydashboard::valueBox(
